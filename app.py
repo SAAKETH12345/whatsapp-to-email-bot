@@ -34,23 +34,11 @@ def request_pair_code_api():
 @app.route("/qr", methods=["GET", "HEAD"])
 @app.route("/qr/", methods=["GET", "HEAD"])
 def index_health_check():
-    green_qr_src = f"/static/qr.png?t={int(time.time())}"
-    try:
-        id_inst = os.getenv("GREEN_API_ID_INSTANCE", "710722711003").strip()
-        tok_inst = os.getenv("GREEN_API_TOKEN_INSTANCE", "7b4857e5190246b39f91d1bbd6aac4c995c68637a4a44f5f97").strip()
-        if id_inst and tok_inst:
-            res = requests.get(f"https://api.green-api.com/waInstance{id_inst}/qr/{tok_inst}", timeout=4)
-            data = res.json()
-            if data.get("type") == "qrCode" and data.get("message"):
-                green_qr_src = f"data:image/png;base64,{data['message']}"
-    except Exception:
-        pass
-
     return render_template_string("""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>WhatsApp 24/7 Cloud AI Bot</title>
+        <title>Native WhatsApp AI Mail Bot (0 Limits)</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
             body { font-family: system-ui, -apple-system, sans-serif; background: #0b141a; color: #e9edef; text-align: center; padding: 2rem 1rem; margin: 0; }
@@ -62,24 +50,22 @@ def index_health_check():
             a { color: #53bdeb; text-decoration: none; font-weight: 500; }
             .btn { background: #202c33; color: #00a884; border: 1px solid #00a884; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 0.8rem; font-size: 0.9rem; }
             .btn:hover { background: #00a884; color: #111b21; }
-            .code-box { font-size: 2.2rem; font-weight: 900; color: #25d366; letter-spacing: 6px; margin: 1rem 0; background: #0b141a; padding: 1rem; border-radius: 10px; border: 2px dashed #00a884; word-break: break-all; }
-            input { padding: 10px 14px; border-radius: 8px; border: 1px solid #00a884; background: #0b141a; color: #fff; text-align: center; font-size: 1rem; width: 220px; font-weight: bold; }
         </style>
     </head>
     <body>
         <div class="card">
-            <h2>📷 WhatsApp 24/7 Cloud QR Scanner</h2>
-            <div><span class="badge">⚡ Official Guaranteed Cloud Gateway</span></div>
+            <h2>⚡ Native WhatsApp Web Engine</h2>
+            <div><span class="badge">🚀 0 Contact Limits • 0 Quotas • 100% Free</span></div>
             <p>Open WhatsApp on <b>+91 63059 70096</b> → <b>Linked Devices</b> → Scan QR Code below:</p>
-            <img id="qrImg" src="{{ qr_src }}" alt="WhatsApp QR Code">
+            <img id="qrImg" src="/static/qr.png?t={{ timestamp }}" alt="Native WhatsApp QR Code">
             <br>
-            <button class="btn" onclick="location.reload()">🔄 Refresh QR Image</button>
+            <button class="btn" onclick="document.getElementById('qrImg').src='/static/qr.png?t='+Date.now()">🔄 Refresh QR Code</button>
             <p style="margin-top: 1.5rem;">Bot Number: <b>+91 63059 70096</b></p>
             <p style="font-size: 0.8rem; margin-top: 1rem;"><a href="/mailbot?phone=%2B916305970096">Authorize Gmail Account</a> | <a href="/static/uploads/WhatsApp_Mail_Bot_AI_User_Manual.pdf">Download Manual</a></p>
         </div>
     </body>
     </html>
-    """, qr_src=green_qr_src)
+    """, timestamp=int(time.time()))
 
 # Base public URL (dynamic ngrok or host)
 def get_base_url():
