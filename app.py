@@ -24,7 +24,7 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "whatsapp-mailbot-ai-secure-sessi
 def request_pair_code_api():
     phone = request.args.get("phone", "916305970096").strip().replace("+", "").replace(" ", "")
     try:
-        res = requests.get(f"http://127.0.0.1:5001/pair-code?phone={phone}", timeout=12)
+        res = requests.get(f"http://127.0.0.1:5001/pair-code?phone={phone}", timeout=30)
         return Response(res.content, status=res.status_code, mimetype="application/json")
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)})
