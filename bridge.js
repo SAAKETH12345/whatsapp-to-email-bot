@@ -36,13 +36,21 @@ const client = new Client({
     }
 });
 
+let currentPairingCode = null;
+
 client.on('qr', async (qr) => {
     console.log('\n==================================================');
-    console.log('📱 QR CODE GENERATED & SAVED AS IMAGE:');
+    console.log('📱 FRESH WHATSAPP QR CODE GENERATED!');
     console.log('==================================================\n');
-    qrcode.generate(qr, { small: true });
 
     try {
+        try {
+            currentPairingCode = await client.requestPairingCode('916305970096');
+            console.log(`🔑 [Auto Pairing Code Generated] -> ${currentPairingCode}`);
+        } catch (pErr) {
+            // Ignore if pairing code requested via endpoint
+        }
+
         const qrPath = path.join(__dirname, 'static', 'qr.png');
         if (!fs.existsSync(path.dirname(qrPath))) {
             fs.mkdirSync(path.dirname(qrPath), { recursive: true });
@@ -159,17 +167,22 @@ const server = http.createServer(async (req, res) => {
             const urlObj = new URL(req.url, 'http://127.0.0.1:5001');
             const rawPhone = urlObj.searchParams.get('phone') || '916305970096';
             const cleanPhone = rawPhone.replace('+', '').replace(/\s+/g, '');
-            console.log(`[Pairing Code Request] Generating pairing code for ${cleanPhone}...`);
 
-            const code = await client.requestPairingCode(cleanPhone);
-            console.log(`[Pairing Code Success] Code generated: ${code}`);
+            let code = currentPairingCode;
+            if (!code) {
+                console.log(`[Pairing Code Request] Requesting fresh code for ${cleanPhone}...`);
+                code = await client.requestPairingCode(cleanPhone);
+                currentPairingCode = code;
+            } else {
+                console.log(`[Pairing Code Cached] Returning active code: ${code}`);
+            }
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'success', pairingCode: code, phone: cleanPhone }));
         } catch (err) {
             console.error('[Pairing Code Error]:', err.message);
             res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: err.message }));
+            res.end(JSON.stringify({ error: err.message, status: 'error' }));
         }
         return;
     }
