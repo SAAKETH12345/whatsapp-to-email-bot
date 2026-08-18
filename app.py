@@ -18,6 +18,11 @@ import db
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "whatsapp-mailbot-ai-secure-session-key-998877665544332211")
 
+@app.route("/", methods=["GET", "HEAD"])
+@app.route("/health", methods=["GET", "HEAD"])
+def index_health_check():
+    return Response("WhatsApp AI Mail Bot is Live & Ready!", status=200, mimetype="text/plain")
+
 # Base public URL (dynamic ngrok or host)
 def get_base_url():
     try:
