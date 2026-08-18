@@ -22,16 +22,14 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "whatsapp-mailbot-ai-secure-sessi
 
 @app.route("/", methods=["GET", "HEAD"])
 @app.route("/health", methods=["GET", "HEAD"])
+@app.route("/qr", methods=["GET", "HEAD"])
+@app.route("/qr/", methods=["GET", "HEAD"])
 def index_health_check():
-    return Response("WhatsApp AI Mail Bot is Live & Ready!", status=200, mimetype="text/plain")
-
-@app.route("/qr")
-def qr_scanner_page():
     return render_template_string("""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>WhatsApp 24/7 Cloud QR Scanner</title>
+        <title>WhatsApp 24/7 Cloud AI Bot</title>
         <meta http-equiv="refresh" content="5">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
@@ -41,15 +39,17 @@ def qr_scanner_page():
             .badge { background: #00a884; color: #111b21; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; display: inline-block; margin-bottom: 1rem; }
             img { width: 100%; max-width: 320px; height: auto; border-radius: 12px; border: 4px solid #00a884; background: #fff; }
             p { color: #8696a0; font-size: 0.95rem; line-height: 1.5; }
+            a { color: #53bdeb; text-decoration: none; font-weight: 500; }
         </style>
     </head>
     <body>
         <div class="card">
-            <h2>⚡ WhatsApp Cloud Bot QR</h2>
-            <div><span class="badge">🔄 Auto-Refreshing Live QR Code</span></div>
+            <h2>⚡ WhatsApp Cloud Bot AI</h2>
+            <div><span class="badge">🟢 Live 24/7 Cloud Engine</span></div>
             <p>Open WhatsApp → <b>Linked Devices</b> → Scan QR Code below:</p>
             <img src="/static/qr.png?t={{ timestamp }}" alt="Fresh WhatsApp QR Code">
-            <p style="margin-top: 1.5rem;">Number: <b>+91 63059 70096</b></p>
+            <p style="margin-top: 1.5rem;">Bot Number: <b>+91 63059 70096</b></p>
+            <p style="font-size: 0.8rem; margin-top: 1rem;"><a href="/mailbot?phone=%2B916305970096">Authorize Gmail Account</a> | <a href="/static/uploads/WhatsApp_Mail_Bot_AI_User_Manual.pdf">Download Manual</a></p>
         </div>
     </body>
     </html>
