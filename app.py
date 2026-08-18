@@ -34,6 +34,18 @@ def request_pair_code_api():
 @app.route("/qr", methods=["GET", "HEAD"])
 @app.route("/qr/", methods=["GET", "HEAD"])
 def index_health_check():
+    green_qr_src = f"/static/qr.png?t={int(time.time())}"
+    try:
+        id_inst = os.getenv("GREEN_API_ID_INSTANCE", "710722711003").strip()
+        tok_inst = os.getenv("GREEN_API_TOKEN_INSTANCE", "7b4857e5190246b39f91d1bbd6aac4c995c68637a4a44f5f97").strip()
+        if id_inst and tok_inst:
+            res = requests.get(f"https://api.green-api.com/waInstance{id_inst}/qr/{tok_inst}", timeout=4)
+            data = res.json()
+            if data.get("type") == "qrCode" and data.get("message"):
+                green_qr_src = f"data:image/png;base64,{data['message']}"
+    except Exception:
+        pass
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -56,49 +68,18 @@ def index_health_check():
     </head>
     <body>
         <div class="card">
-            <h2>🔑 Option 1: Link via Phone Pairing Code</h2>
-            <div><span class="badge">⚡ 100% Stable Connection</span></div>
-            <p>Enter phone number with country code (e.g. <b>916305970096</b>):</p>
-            <input type="text" id="phoneInput" value="916305970096">
+            <h2>📷 WhatsApp 24/7 Cloud QR Scanner</h2>
+            <div><span class="badge">⚡ Official Guaranteed Cloud Gateway</span></div>
+            <p>Open WhatsApp on <b>+91 63059 70096</b> → <b>Linked Devices</b> → Scan QR Code below:</p>
+            <img id="qrImg" src="{{ qr_src }}" alt="WhatsApp QR Code">
             <br>
-            <button class="btn" style="background:#00a884; color:#111b21;" onclick="getPairCode()">Get 8-Digit Pairing Code</button>
-            <div id="codeDisplay" class="code-box" style="display:none;"></div>
-            <p style="font-size: 0.85rem; color: #8696a0; margin-top: 1rem;">
-                Open WhatsApp on phone → <b>Linked Devices</b> → <b>Link with phone number instead</b> → Type the 8-digit code above!
-            </p>
-        </div>
-
-        <div class="card">
-            <h2>📷 Option 2: Scan QR Code</h2>
-            <img id="qrImg" src="/static/qr.png?t={{ timestamp }}" alt="WhatsApp QR Code">
-            <br>
-            <button class="btn" onclick="document.getElementById('qrImg').src='/static/qr.png?t='+Date.now()">🔄 Refresh QR Now</button>
+            <button class="btn" onclick="location.reload()">🔄 Refresh QR Image</button>
             <p style="margin-top: 1.5rem;">Bot Number: <b>+91 63059 70096</b></p>
             <p style="font-size: 0.8rem; margin-top: 1rem;"><a href="/mailbot?phone=%2B916305970096">Authorize Gmail Account</a> | <a href="/static/uploads/WhatsApp_Mail_Bot_AI_User_Manual.pdf">Download Manual</a></p>
         </div>
-
-        <script>
-            async function getPairCode() {
-                const display = document.getElementById('codeDisplay');
-                const phone = document.getElementById('phoneInput').value.trim();
-                display.style.display = 'block';
-                display.innerText = 'Generating... ⏳';
-                try {
-                    const res = await fetch('/request-pair-code?phone=' + encodeURIComponent(phone));
-                    const data = await res.json();
-                    if(data.pairingCode) {
-                        display.innerText = data.pairingCode;
-                    } else {
-                        display.innerText = 'Error: ' + (data.error || 'Retry in 5s');
-                    }
-                } catch(e) {
-                    display.innerText = 'Connecting... Retry';
-                }
-            }
-        </script>
     </body>
     </html>
-    """, timestamp=int(time.time()))
+    """, qr_src=green_qr_src)
 
 # Base public URL (dynamic ngrok or host)
 def get_base_url():
