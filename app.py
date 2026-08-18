@@ -39,7 +39,6 @@ def index_health_check():
     <html>
     <head>
         <title>WhatsApp 24/7 Cloud AI Bot</title>
-        <meta http-equiv="refresh" content="60">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
             body { font-family: system-ui, -apple-system, sans-serif; background: #0b141a; color: #e9edef; text-align: center; padding: 2rem 1rem; margin: 0; }
@@ -49,7 +48,6 @@ def index_health_check():
             img { width: 100%; max-width: 320px; height: auto; border-radius: 12px; border: 4px solid #00a884; background: #fff; display: block; margin: 0 auto; }
             p { color: #8696a0; font-size: 0.95rem; line-height: 1.5; }
             a { color: #53bdeb; text-decoration: none; font-weight: 500; }
-            .timer-text { color: #00a884; font-weight: bold; margin-top: 1rem; font-size: 0.95rem; }
             .btn { background: #202c33; color: #00a884; border: 1px solid #00a884; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 0.8rem; font-size: 0.9rem; }
             .btn:hover { background: #00a884; color: #111b21; }
             .code-box { font-size: 2.2rem; font-weight: 900; color: #25d366; letter-spacing: 6px; margin: 1rem 0; background: #0b141a; padding: 1rem; border-radius: 10px; border: 2px dashed #00a884; word-break: break-all; }
@@ -59,7 +57,7 @@ def index_health_check():
     <body>
         <div class="card">
             <h2>🔑 Option 1: Link via Phone Pairing Code</h2>
-            <div><span class="badge">⚡ 100% Reliable Cloud Connection</span></div>
+            <div><span class="badge">⚡ 100% Stable Connection</span></div>
             <p>Enter phone number with country code (e.g. <b>916305970096</b>):</p>
             <input type="text" id="phoneInput" value="916305970096">
             <br>
@@ -73,8 +71,8 @@ def index_health_check():
         <div class="card">
             <h2>📷 Option 2: Scan QR Code</h2>
             <img id="qrImg" src="/static/qr.png?t={{ timestamp }}" alt="WhatsApp QR Code">
-            <p class="timer-text">⏳ Code refreshes in <span id="countdown">60</span> seconds</p>
-            <button class="btn" onclick="location.reload()">🔄 Refresh QR Now</button>
+            <br>
+            <button class="btn" onclick="document.getElementById('qrImg').src='/static/qr.png?t='+Date.now()">🔄 Refresh QR Now</button>
             <p style="margin-top: 1.5rem;">Bot Number: <b>+91 63059 70096</b></p>
             <p style="font-size: 0.8rem; margin-top: 1rem;"><a href="/mailbot?phone=%2B916305970096">Authorize Gmail Account</a> | <a href="/static/uploads/WhatsApp_Mail_Bot_AI_User_Manual.pdf">Download Manual</a></p>
         </div>
@@ -97,14 +95,6 @@ def index_health_check():
                     display.innerText = 'Connecting... Retry';
                 }
             }
-
-            let sec = 60;
-            setInterval(function(){
-                sec--;
-                if(sec >= 0) {
-                    document.getElementById('countdown').innerText = sec;
-                }
-            }, 1000);
         </script>
     </body>
     </html>
