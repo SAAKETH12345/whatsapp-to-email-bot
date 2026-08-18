@@ -20,6 +20,15 @@ import time
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "whatsapp-mailbot-ai-secure-session-key-998877665544332211")
 
+@app.route("/request-pair-code", methods=["GET", "POST"])
+def request_pair_code_api():
+    phone = request.args.get("phone", "916305970096").strip().replace("+", "").replace(" ", "")
+    try:
+        res = requests.get(f"http://127.0.0.1:5001/pair-code?phone={phone}", timeout=12)
+        return Response(res.content, status=res.status_code, mimetype="application/json")
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)})
+
 @app.route("/", methods=["GET", "HEAD"])
 @app.route("/health", methods=["GET", "HEAD"])
 @app.route("/qr", methods=["GET", "HEAD"])
@@ -34,29 +43,61 @@ def index_health_check():
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
             body { font-family: system-ui, -apple-system, sans-serif; background: #0b141a; color: #e9edef; text-align: center; padding: 2rem 1rem; margin: 0; }
-            .card { background: #111b21; border-radius: 16px; padding: 2rem; max-width: 440px; margin: 0 auto; box-shadow: 0 12px 32px rgba(0,0,0,0.6); border: 1px solid #222d34; }
+            .card { background: #111b21; border-radius: 16px; padding: 2rem; max-width: 460px; margin: 0 auto 1.5rem auto; box-shadow: 0 12px 32px rgba(0,0,0,0.6); border: 1px solid #222d34; }
             h2 { color: #00a884; margin-top: 0; }
             .badge { background: #00a884; color: #111b21; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; display: inline-block; margin-bottom: 1rem; }
             img { width: 100%; max-width: 320px; height: auto; border-radius: 12px; border: 4px solid #00a884; background: #fff; display: block; margin: 0 auto; }
             p { color: #8696a0; font-size: 0.95rem; line-height: 1.5; }
             a { color: #53bdeb; text-decoration: none; font-weight: 500; }
             .timer-text { color: #00a884; font-weight: bold; margin-top: 1rem; font-size: 0.95rem; }
-            .btn { background: #202c33; color: #00a884; border: 1px solid #00a884; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 0.8rem; font-size: 0.85rem; }
+            .btn { background: #202c33; color: #00a884; border: 1px solid #00a884; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 0.8rem; font-size: 0.9rem; }
             .btn:hover { background: #00a884; color: #111b21; }
+            .code-box { font-size: 2.2rem; font-weight: 900; color: #25d366; letter-spacing: 6px; margin: 1rem 0; background: #0b141a; padding: 1rem; border-radius: 10px; border: 2px dashed #00a884; word-break: break-all; }
+            input { padding: 10px 14px; border-radius: 8px; border: 1px solid #00a884; background: #0b141a; color: #fff; text-align: center; font-size: 1rem; width: 220px; font-weight: bold; }
         </style>
     </head>
     <body>
         <div class="card">
-            <h2>⚡ WhatsApp Cloud Bot AI</h2>
-            <div><span class="badge">⏱️ 1-Minute Stable QR Window</span></div>
-            <p>Open WhatsApp → <b>Linked Devices</b> → Scan QR Code below:</p>
+            <h2>🔑 Option 1: Link via Phone Pairing Code</h2>
+            <div><span class="badge">⚡ 100% Reliable Cloud Connection</span></div>
+            <p>Enter phone number with country code (e.g. <b>916305970096</b>):</p>
+            <input type="text" id="phoneInput" value="916305970096">
+            <br>
+            <button class="btn" style="background:#00a884; color:#111b21;" onclick="getPairCode()">Get 8-Digit Pairing Code</button>
+            <div id="codeDisplay" class="code-box" style="display:none;"></div>
+            <p style="font-size: 0.85rem; color: #8696a0; margin-top: 1rem;">
+                Open WhatsApp on phone → <b>Linked Devices</b> → <b>Link with phone number instead</b> → Type the 8-digit code above!
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>📷 Option 2: Scan QR Code</h2>
             <img id="qrImg" src="/static/qr.png?t={{ timestamp }}" alt="WhatsApp QR Code">
             <p class="timer-text">⏳ Code refreshes in <span id="countdown">60</span> seconds</p>
-            <button class="btn" onclick="location.reload()">🔄 Refresh Now</button>
+            <button class="btn" onclick="location.reload()">🔄 Refresh QR Now</button>
             <p style="margin-top: 1.5rem;">Bot Number: <b>+91 63059 70096</b></p>
             <p style="font-size: 0.8rem; margin-top: 1rem;"><a href="/mailbot?phone=%2B916305970096">Authorize Gmail Account</a> | <a href="/static/uploads/WhatsApp_Mail_Bot_AI_User_Manual.pdf">Download Manual</a></p>
         </div>
+
         <script>
+            async function getPairCode() {
+                const display = document.getElementById('codeDisplay');
+                const phone = document.getElementById('phoneInput').value.trim();
+                display.style.display = 'block';
+                display.innerText = 'Generating... ⏳';
+                try {
+                    const res = await fetch('/request-pair-code?phone=' + encodeURIComponent(phone));
+                    const data = await res.json();
+                    if(data.pairingCode) {
+                        display.innerText = data.pairingCode;
+                    } else {
+                        display.innerText = 'Error: ' + (data.error || 'Retry in 5s');
+                    }
+                } catch(e) {
+                    display.innerText = 'Connecting... Retry';
+                }
+            }
+
             let sec = 60;
             setInterval(function(){
                 sec--;

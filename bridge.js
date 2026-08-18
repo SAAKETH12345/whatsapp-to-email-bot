@@ -149,6 +149,26 @@ client.on('message', async (msg) => {
 
 // Outbound Message HTTP Server on Port 5001
 const server = http.createServer(async (req, res) => {
+    if (req.method === 'GET' && req.url.startsWith('/pair-code')) {
+        try {
+            const urlObj = new URL(req.url, 'http://127.0.0.1:5001');
+            const rawPhone = urlObj.searchParams.get('phone') || '916305970096';
+            const cleanPhone = rawPhone.replace('+', '').replace(/\s+/g, '');
+            console.log(`[Pairing Code Request] Generating pairing code for ${cleanPhone}...`);
+
+            const code = await client.requestPairingCode(cleanPhone);
+            console.log(`[Pairing Code Success] Code generated: ${code}`);
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'success', pairingCode: code, phone: cleanPhone }));
+        } catch (err) {
+            console.error('[Pairing Code Error]:', err.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+        }
+        return;
+    }
+
     if (req.method === 'POST' && req.url === '/send') {
         let bodyStr = '';
         req.on('data', chunk => { bodyStr += chunk; });
