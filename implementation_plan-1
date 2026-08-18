@@ -1,0 +1,65 @@
+# WhatsApp-to-Email Bridge Implementation Plan
+
+This project creates a modular Python bridge application that receives incoming WhatsApp messages via Twilio, uses the `google-antigravity` SDK with Pydantic structured output to draft formal emails from informal briefs, and sends out standard MIME emails with attached media files via the Gmail API.
+
+## Proposed Components & Architecture
+
+```
+[ WhatsApp User ] 
+       │ (Twilio POST Webhook)
+       ▼
+[ app.py (Flask Webhook) ]
+       │
+       ├──► [ ai_agent.py (google-antigravity + Pydantic EmailDraft) ]
+       │          └─► Generates structured { subject, body }
+       │
+       └──► [ mailer.py (Gmail API + Requests MIME Builder) ]
+                  ├─► Downloads attachment from Twilio MediaUrl (if present)
+                  └─► Encodes & sends email via Gmail API
+```
+
+---
+
+## Proposed File Structure
+
+### 1. `ai_agent.py`
+- Define `EmailDraft(BaseModel)` with `subject: str` and `body: str`.
+- Create `draft_email(brief: str) -> EmailDraft` function using `google-antigravity`'s `Agent` and `LocalAgentConfig`.
+- Configures system instructions for formatting prompt output into structured `EmailDraft` JSON, parsing and validating with Pydantic.
+
+### 2. `mailer.py`
+- Contains `get_gmail_service()` to handle OAuth2 credentials (`credentials.json`, `token.json`) using `google-api-python-client`.
+- Contains `send_email(to_email: str, subject: str, body: str, media_url: str = None)` function.
+- Downloads attachments from Twilio using `requests` (with optional Twilio HTTP Auth).
+- Builds a `MIMEMultipart` email payload and sends via Gmail API `users().messages().send`.
+- Includes clear header comments explaining how to acquire `credentials.json` from GCP and generate `token.json` on initial authorization.
+
+### 3. `app.py`
+- Flask application initializing `load_dotenv()`.
+- `/whatsapp` `POST` route handling Twilio webhook callbacks (`request.form`).
+- Extracts `Body` (brief/prompt), optional target recipient address, and `MediaUrl0` (if any).
+- Coordinates `ai_agent.draft_email()` and `mailer.send_email()`.
+- Returns TwiML response (`MessagingResponse`).
+
+### 4. Support files: `.env.example`, `requirements.txt`
+- Clear declaration of required environment variables (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `DEFAULT_RECIPIENT_EMAIL`, `GMAIL_CREDENTIALS_FILE`, `GMAIL_TOKEN_FILE`).
+- Dependency list (`flask`, `twilio`, `google-antigravity`, `google-api-python-client`, `google-auth-httplib2`, `google-auth-oauthlib`, `requests`, `python-dotenv`, `pydantic`).
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> - **Gmail API Setup**: Running the Gmail API for the first time requires downloading OAuth 2.0 Client Credentials (`credentials.json`) from Google Cloud Console with the `https://www.googleapis.com/auth/gmail.send` scope.
+> - **Twilio Credentials**: If downloading media from Twilio, `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` are passed to `requests` for authenticated media fetching.
+
+---
+
+## Verification Plan
+
+### Automated / Code Quality Verification
+- Syntax check all python files using `python -m py_compile app.py ai_agent.py mailer.py`.
+- Run mock test imports and dry-run functions where possible.
+
+### Manual Verification
+- Start Flask dev server (`python app.py`) and verify `/whatsapp` endpoint accepts sample payload.
