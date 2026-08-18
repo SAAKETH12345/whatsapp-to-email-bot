@@ -13,6 +13,10 @@ console.log('🚀 Initializing Native WhatsApp Web Bridge...');
 
 const client = new Client({
     authStrategy: new LocalAuth({ dataPath: './.wwebjs_auth' }),
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1014717897-alpha.html',
+    },
     puppeteer: {
         headless: process.env.PUPPETEER_HEADLESS === 'false' ? false : true,
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
@@ -26,7 +30,8 @@ const client = new Client({
             '--no-zygote',
             '--single-process',
             '--disable-accelerated-2d-canvas',
-            '--js-flags="--max-old-space-size=128"'
+            '--js-flags="--max-old-space-size=256"',
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
         ]
     }
 });
