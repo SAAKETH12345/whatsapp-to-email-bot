@@ -15,6 +15,8 @@ from ai_agent import draft_email
 from mailer import send_email, send_email_with_user_creds
 import db
 
+import time
+
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "whatsapp-mailbot-ai-secure-session-key-998877665544332211")
 
@@ -22,6 +24,36 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "whatsapp-mailbot-ai-secure-sessi
 @app.route("/health", methods=["GET", "HEAD"])
 def index_health_check():
     return Response("WhatsApp AI Mail Bot is Live & Ready!", status=200, mimetype="text/plain")
+
+@app.route("/qr")
+def qr_scanner_page():
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>WhatsApp 24/7 Cloud QR Scanner</title>
+        <meta http-equiv="refresh" content="5">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body { font-family: system-ui, -apple-system, sans-serif; background: #0b141a; color: #e9edef; text-align: center; padding: 2rem 1rem; margin: 0; }
+            .card { background: #111b21; border-radius: 16px; padding: 2rem; max-width: 440px; margin: 0 auto; box-shadow: 0 12px 32px rgba(0,0,0,0.6); border: 1px solid #222d34; }
+            h2 { color: #00a884; margin-top: 0; }
+            .badge { background: #00a884; color: #111b21; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; display: inline-block; margin-bottom: 1rem; }
+            img { width: 100%; max-width: 320px; height: auto; border-radius: 12px; border: 4px solid #00a884; background: #fff; }
+            p { color: #8696a0; font-size: 0.95rem; line-height: 1.5; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h2>⚡ WhatsApp Cloud Bot QR</h2>
+            <div><span class="badge">🔄 Auto-Refreshing Live QR Code</span></div>
+            <p>Open WhatsApp → <b>Linked Devices</b> → Scan QR Code below:</p>
+            <img src="/static/qr.png?t={{ timestamp }}" alt="Fresh WhatsApp QR Code">
+            <p style="margin-top: 1.5rem;">Number: <b>+91 63059 70096</b></p>
+        </div>
+    </body>
+    </html>
+    """, timestamp=int(time.time()))
 
 # Base public URL (dynamic ngrok or host)
 def get_base_url():
