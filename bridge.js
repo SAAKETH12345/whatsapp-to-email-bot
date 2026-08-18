@@ -179,7 +179,7 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
-server.listen(BRIDGE_PORT, () => {
+server.listen(BRIDGE_PORT, '127.0.0.1', () => {
     console.log(`📡 Native WhatsApp Outbound Bridge listening on http://127.0.0.1:${BRIDGE_PORT}`);
 });
 
