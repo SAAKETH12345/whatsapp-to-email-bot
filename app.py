@@ -48,21 +48,54 @@ def index_health_check():
             img { width: 100%; max-width: 320px; height: auto; border-radius: 12px; border: 4px solid #00a884; background: #fff; display: block; margin: 0 auto; }
             p { color: #8696a0; font-size: 0.95rem; line-height: 1.5; }
             a { color: #53bdeb; text-decoration: none; font-weight: 500; }
-            .btn { background: #202c33; color: #00a884; border: 1px solid #00a884; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 0.8rem; font-size: 0.9rem; }
+            .btn { background: #202c33; color: #00a884; border: 1px solid #00a884; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 0.8rem; font-size: 0.95rem; }
             .btn:hover { background: #00a884; color: #111b21; }
+            .code-box { font-size: 2.4rem; font-weight: 900; color: #25d366; letter-spacing: 6px; margin: 1.2rem 0; background: #0b141a; padding: 1.2rem; border-radius: 10px; border: 2px dashed #00a884; word-break: break-all; }
+            input { padding: 12px 16px; border-radius: 8px; border: 1px solid #00a884; background: #0b141a; color: #fff; text-align: center; font-size: 1.1rem; width: 240px; font-weight: bold; }
         </style>
     </head>
     <body>
         <div class="card">
-            <h2>⚡ Native WhatsApp Web Engine</h2>
-            <div><span class="badge">🚀 0 Contact Limits • 0 Quotas • 100% Free</span></div>
-            <p>Open WhatsApp on <b>+91 63059 70096</b> → <b>Linked Devices</b> → Scan QR Code below:</p>
+            <h2>🔑 Option 1: Link via Phone Pairing Code</h2>
+            <div><span class="badge">🚀 0 Chat Limits • 0 Quotas • 100% Free</span></div>
+            <p>Enter phone number with country code (e.g. <b>916305970096</b>):</p>
+            <input type="text" id="phoneInput" value="916305970096">
+            <br>
+            <button class="btn" style="background:#00a884; color:#111b21;" onclick="getPairCode()">Get 8-Digit Pairing Code</button>
+            <div id="codeDisplay" class="code-box" style="display:none;"></div>
+            <p style="font-size: 0.85rem; color: #8696a0; margin-top: 1rem;">
+                Open WhatsApp on phone → <b>Linked Devices</b> → <b>Link with phone number instead</b> → Type the 8-digit code above!
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>📷 Option 2: Scan QR Code</h2>
             <img id="qrImg" src="/static/qr.png?t={{ timestamp }}" alt="Native WhatsApp QR Code">
             <br>
-            <button class="btn" onclick="document.getElementById('qrImg').src='/static/qr.png?t='+Date.now()">🔄 Refresh QR Code</button>
+            <button class="btn" onclick="document.getElementById('qrImg').src='/static/qr.png?t='+Date.now()">🔄 Refresh QR Image</button>
             <p style="margin-top: 1.5rem;">Bot Number: <b>+91 63059 70096</b></p>
             <p style="font-size: 0.8rem; margin-top: 1rem;"><a href="/mailbot?phone=%2B916305970096">Authorize Gmail Account</a> | <a href="/static/uploads/WhatsApp_Mail_Bot_AI_User_Manual.pdf">Download Manual</a></p>
         </div>
+
+        <script>
+            async function getPairCode() {
+                const display = document.getElementById('codeDisplay');
+                const phone = document.getElementById('phoneInput').value.trim();
+                display.style.display = 'block';
+                display.innerText = 'Generating... ⏳';
+                try {
+                    const res = await fetch('/request-pair-code?phone=' + encodeURIComponent(phone));
+                    const data = await res.json();
+                    if(data.pairingCode) {
+                        display.innerText = data.pairingCode;
+                    } else {
+                        display.innerText = 'Error: ' + (data.error || 'Retry in 5s');
+                    }
+                } catch(e) {
+                    display.innerText = 'Connecting... Retry in 3s';
+                }
+            }
+        </script>
     </body>
     </html>
     """, timestamp=int(time.time()))
