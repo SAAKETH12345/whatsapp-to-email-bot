@@ -37,24 +37,12 @@ const client = new Client({
 });
 
 let currentPairingCode = null;
-let isQrReady = false;
-
 client.on('qr', async (qr) => {
-    isQrReady = true;
     console.log('\n==================================================');
     console.log('📱 FRESH NATIVE WHATSAPP WEB ENGINE INITIALIZED!');
     console.log('==================================================\n');
 
     try {
-        if (!client.info && !currentPairingCode) {
-            try {
-                currentPairingCode = await client.requestPairingCode('916305970096');
-                console.log(`🔑 [Native WA 8-Digit Pairing Code Generated] -> ${currentPairingCode}`);
-            } catch (pErr) {
-                console.log(`[Pairing Code Auto-gen note]: ${pErr.message}`);
-            }
-        }
-
         const qrPath = path.join(__dirname, 'static', 'qr.png');
         if (!fs.existsSync(path.dirname(qrPath))) {
             fs.mkdirSync(path.dirname(qrPath), { recursive: true });
