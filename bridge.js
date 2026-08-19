@@ -37,18 +37,22 @@ const client = new Client({
 });
 
 let currentPairingCode = null;
+let isQrReady = false;
 
 client.on('qr', async (qr) => {
+    isQrReady = true;
     console.log('\n==================================================');
-    console.log('📱 FRESH WHATSAPP QR CODE GENERATED!');
+    console.log('📱 FRESH NATIVE WHATSAPP WEB ENGINE INITIALIZED!');
     console.log('==================================================\n');
 
     try {
-        try {
-            currentPairingCode = await client.requestPairingCode('916305970096');
-            console.log(`🔑 [Auto Pairing Code Generated] -> ${currentPairingCode}`);
-        } catch (pErr) {
-            // Ignore if pairing code requested via endpoint
+        if (!client.info && !currentPairingCode) {
+            try {
+                currentPairingCode = await client.requestPairingCode('916305970096');
+                console.log(`🔑 [Native WA 8-Digit Pairing Code Generated] -> ${currentPairingCode}`);
+            } catch (pErr) {
+                console.log(`[Pairing Code Auto-gen note]: ${pErr.message}`);
+            }
         }
 
         const qrPath = path.join(__dirname, 'static', 'qr.png');
@@ -56,16 +60,9 @@ client.on('qr', async (qr) => {
             fs.mkdirSync(path.dirname(qrPath), { recursive: true });
         }
         await QRCode.toFile(qrPath, qr, { width: 500, margin: 2 });
-        console.log(`[QR Image Saved] -> ${qrPath}`);
-
-        const artifactDir = 'C:\\Users\\saake\\.gemini\\antigravity-ide\\brain\\233f4818-fc1d-4b24-8d12-fc4b81327d4d';
-        if (fs.existsSync(artifactDir)) {
-            const artifactQrPath = path.join(artifactDir, 'qr.png');
-            fs.copyFileSync(qrPath, artifactQrPath);
-            console.log(`[QR Image Copied to Artifacts] -> ${artifactQrPath}`);
-        }
+        console.log(`[Native WA QR Image Saved] -> ${qrPath}`);
     } catch (err) {
-        console.error('[QR Image Export Error]:', err.message);
+        console.error('[Native WA QR Export Error]:', err.message);
     }
 });
 
