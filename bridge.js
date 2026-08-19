@@ -164,6 +164,17 @@ client.on('message_create', handleIncomingMessage);
 const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && req.url.startsWith('/pair-code')) {
         try {
+            if (client.info && client.info.wid) {
+                console.log(`[Native WA Status] Client is ALREADY connected as ${client.info.wid._serialized}!`);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    status: 'already_connected',
+                    pairingCode: 'CONNECTED',
+                    message: `WhatsApp is ALREADY linked & active for ${client.info.wid.user}!`
+                }));
+                return;
+            }
+
             const urlObj = new URL(req.url, 'http://127.0.0.1:5001');
             const rawPhone = urlObj.searchParams.get('phone') || '916305970096';
             const cleanPhone = rawPhone.replace('+', '').replace(/\s+/g, '');
