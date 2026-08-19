@@ -167,22 +167,32 @@ const server = http.createServer(async (req, res) => {
             const urlObj = new URL(req.url, 'http://127.0.0.1:5001');
             const rawPhone = urlObj.searchParams.get('phone') || '916305970096';
             const cleanPhone = rawPhone.replace('+', '').replace(/\s+/g, '');
+            const forceNew = urlObj.searchParams.get('force') === 'true';
 
-            let code = currentPairingCode;
-            if (!code) {
-                console.log(`[Pairing Code Request] Requesting fresh code for ${cleanPhone}...`);
-                code = await client.requestPairingCode(cleanPhone);
-                currentPairingCode = code;
-            } else {
+            let code = null;
+            if (!forceNew && currentPairingCode) {
+                code = currentPairingCode;
                 console.log(`[Pairing Code Cached] Returning active code: ${code}`);
+            } else {
+                console.log(`[Pairing Code Request] Requesting fresh code for ${cleanPhone}...`);
+                try {
+                    code = await client.requestPairingCode(cleanPhone);
+                    currentPairingCode = code;
+                } catch (pErr) {
+                    if (currentPairingCode) {
+                        code = currentPairingCode;
+                    } else {
+                        throw pErr;
+                    }
+                }
             }
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'success', pairingCode: code, phone: cleanPhone }));
         } catch (err) {
             console.error('[Pairing Code Error]:', err.message);
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: err.message, status: 'error' }));
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message, pairingCode: currentPairingCode || 'RETRY_IN_5S', status: 'error' }));
         }
         return;
     }
