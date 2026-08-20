@@ -4693,15 +4693,15 @@ def submit_credentials():
     return render_template_string(SUCCESS_HTML_TEMPLATE, email=sender_email, phone=phone)
 
 
-def send_meta_whatsapp_message(to_phone: str, message_text: str) -> bool:
+def send_meta_whatsapp_message(to_phone: str, message_text: str):
     """
-    Sends an outbound WhatsApp message via Meta official Cloud API REST endpoint.
-    Returns True if successful (200 OK), False otherwise.
+    Sends an outbound WhatsApp message via Meta Cloud API.
     """
-    access_token = os.getenv("META_ACCESS_TOKEN", "").strip()
-    phone_number_id = os.getenv("META_PHONE_NUMBER_ID", "").strip()
+    access_token = os.getenv("META_ACCESS_TOKEN", "EAAY2ZAOVci3YBSAQuZAORN3k6u78XtkEdshWmULqwviZAwX0UyTvLfg8WHdtPfjE9UGdQGKBpb2D15cWcGqq14GrGZBEdjU1FxDZBgxildZCapufCPt3nr6whLmJFU5OV77I2i3pqKRjBCsjvgd718FCSbuyhSX298mTJKZCTzeIcS3nFqb9vr1D0vZA6xx6ZBJANhRlNU5pDHsDI0e0CzZCUrpzTce2dMO7BVdbMoLHzVpZBQjohvBO4SwLKVMhHdkxPZBG0ZCbDpI3kJHJgYhCUHcGUihnYwQZDZD").strip()
+    phone_number_id = os.getenv("META_PHONE_NUMBER_ID", "1334345403089387").strip()
 
     if not access_token or not phone_number_id:
+        print("[Meta Cloud API] Missing ACCESS_TOKEN or PHONE_NUMBER_ID!", flush=True)
         return False
 
     clean_phone = to_phone.strip().replace("+", "").replace(" ", "")
@@ -4721,10 +4721,10 @@ def send_meta_whatsapp_message(to_phone: str, message_text: str) -> bool:
     }
     try:
         res = requests.post(url, json=payload, headers=headers, timeout=10)
-        print(f"[Meta Cloud API Response] ({res.status_code}): {res.text[:100]}")
-        return res.status_code == 200
+        print(f"[Meta Cloud API Response] ({res.status_code}): {res.text[:150]}", flush=True)
+        return res.status_code in (200, 201)
     except Exception as err:
-        print(f"[Meta Cloud API Error]: {err}")
+        print(f"[Meta Cloud API Error]: {err}", flush=True)
         return False
 
 
