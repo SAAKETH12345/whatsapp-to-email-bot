@@ -4697,7 +4697,7 @@ def send_meta_whatsapp_message(to_phone: str, message_text: str):
     """
     Sends an outbound WhatsApp message via Meta Cloud API.
     """
-    access_token = os.getenv("META_ACCESS_TOKEN", "EAAY2ZAOVci3YBSa2V03sugmVSA58wZC37tQRcSQfYJkhVMNmcZA6aMo0VLS9NX0N1az206YaurTD262tTmal0Ato5Ls9ML1IKZBiKHtUHPxeANZBukNxa4JJYSZAzHOpzptu6jNQQMy2wdCZC8YVqteeDJDGkToLbRZCBYvcp3egl65ze57t97FTETtBgxNnkLtZCPFoKRtvUCjGH8pVQqAbXZAIqV2CvpMbTz6p2uNXe8j22vMjdw98mB5Rk8Gq0ZBPCrCTY8eFV5767nc9YkJI4qVgMjF").strip()
+    access_token = os.getenv("META_ACCESS_TOKEN", "EAAY2ZAOVci3YBSYJ25EpgtDxibwkkLFbTty3rZBx6l1OFPUmOdwggICGGKa8QEJxx7NqPSRoW5fX81mx4uyN0QHCdRJiHO5YiUfLiQdYchAqlDXGJZAzfRp73c1FJAHCsrhxFSeWCAAZB6Xjduqsx41Rew4Bl4tHa6CaxHZBufZAmfbi0gqPqYjvvHorzUJr4ZCegZDZD").strip()
     phone_number_id = os.getenv("META_PHONE_NUMBER_ID", "1334345403089387").strip()
 
     if not access_token or not phone_number_id:
