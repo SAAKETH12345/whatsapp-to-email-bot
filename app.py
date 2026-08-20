@@ -5109,8 +5109,14 @@ def meta_whatsapp_webhook():
 
     # 2. Meta Webhook Incoming Message POST Handler
     if request.method == "POST":
-        data = request.get_json(silent=True) or {}
-        print(f"[Meta Webhook POST Received] keys={list(data.keys())}", flush=True)
+        data = request.get_json(silent=True, force=True) or {}
+        if not data:
+            try:
+                data = json.loads(request.data.decode("utf-8"))
+            except Exception:
+                data = request.form.to_dict() or {}
+
+        print(f"[Meta Webhook POST Received] keys={list(data.keys())} | payload={str(data)[:200]}", flush=True)
 
         try:
             entries = data.get("entry", [])
@@ -5119,7 +5125,6 @@ def meta_whatsapp_webhook():
                 for change in changes:
                     value = change.get("value", {})
                     messages = value.get("messages", [])
-                    contacts = value.get("contacts", [])
 
                     for msg in messages:
                         from_number = msg.get("from", "")
